@@ -66,7 +66,6 @@ public class CollectionActivity extends SherlockFragmentActivity {
                 setPlaybackInfo(((TomahawkApp) getApplication()).getPlaybackService().getCurrentTrack());
             }
         }
-
     }
 
     /*
@@ -78,7 +77,7 @@ public class CollectionActivity extends SherlockFragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        View view = getLayoutInflater().inflate(R.layout.tomahawk_main_activity, null);
+        View view = getLayoutInflater().inflate(R.layout.collection_activity, null);
         setContentView(view);
         mViewPager = (ViewPager) findViewById(R.id.view_pager);
 
