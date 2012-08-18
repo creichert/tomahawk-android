@@ -87,6 +87,7 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
         super.onDestroy();
         TomahawkApp app = (TomahawkApp) getApplication();
         app.unbindService();
+        finish();
 	}
 
     public void onCollectionClicked(View view) {
