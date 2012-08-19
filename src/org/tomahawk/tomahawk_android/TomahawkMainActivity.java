@@ -76,7 +76,8 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
          * AccountManager has the auth token the TomahawkMainActivity.run is
          * called and starts the TomahawkServerConnection.
          */
-        accountManager.getAuthToken(accounts[0], TomahawkServerConnection.AUTH_TOKEN_TYPE, null, new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
+        accountManager.getAuthToken(accounts[0], TomahawkServerConnection.AUTH_TOKEN_TYPE, null,
+                new TomahawkAccountAuthenticatorActivity(), (TomahawkApp) getApplication(), null);
     }
 
     /* (non-Javadoc)
@@ -91,9 +92,9 @@ public class TomahawkMainActivity extends SherlockFragmentActivity {
 	}
 
     public void onCollectionClicked(View view) {
-
-        Intent i = new Intent(this, CollectionActivity.class);
-        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA, ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
+        Intent i = new Intent(this, CollectionActivitys.class);
+        i.putExtra(CollectionActivity.COLLECTION_ID_EXTRA,
+                ((TomahawkApp) getApplication()).getSourceList().getLocalSource().getCollection().getId());
         startActivity(i);
     }
 }
