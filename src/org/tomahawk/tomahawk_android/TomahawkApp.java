@@ -25,7 +25,8 @@ import org.tomahawk.libtomahawk.Source;
 import org.tomahawk.libtomahawk.SourceList;
 import org.tomahawk.libtomahawk.audio.PlaybackService;
 import org.tomahawk.libtomahawk.audio.PlaybackService.PlaybackServiceBinder;
-import org.tomahawk.libtomahawk.network.TomahawkServerConnection;
+import org.tomahawk.libtomahawk.network.TomahawkService;
+import org.tomahawk.libtomahawk.network.TomahawkService.TomahawkServiceBinder;
 
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerCallback;
@@ -52,7 +53,7 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
 
     private static Context sApplicationContext;
 
-    private TomahawkServerConnection mTomahawkServerConnection;
+    private TomahawkService mTomahawkService;
     private PlaybackService mPlaybackService;
     private AccountManager mAccountManager;
     private SourceList mSourceList;
@@ -70,6 +71,22 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mPlaybackService = null;
+        }
+    };
+
+    /** Allow communication to the TomahawkService. */
+    private ServiceConnection mTomahawkServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+
+            TomahawkServiceBinder binder = (TomahawkServiceBinder) service;
+            mTomahawkService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mTomahawkService = null;
         }
     };
 
@@ -130,10 +147,11 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
     }
 
     /**
-     * Starting Unbind the application from the PlaybackService.
+     * Starting Unbind the application from the Services.
      */
-    public void unbindService() {
+    public void unbindServices() {
         unbindService(mPlaybackServiceConnection);
+        unbindService(mTomahawkServiceConnection);
     }
 
     /**
@@ -156,13 +174,17 @@ public class TomahawkApp extends Application implements AccountManagerCallback<B
         try {
 
             String token = result.getResult().getString(AccountManager.KEY_AUTHTOKEN);
-            String userid = result.getResult().getString(AccountManager.KEY_ACCOUNT_NAME);
+            String username = result.getResult().getString(AccountManager.KEY_ACCOUNT_NAME);
             if (token == null) {
                 Intent i = new Intent(getApplicationContext(), TomahawkAccountAuthenticatorActivity.class);
                 startActivity(i);
             } else {
                 Log.d(TAG, "Starting Tomahawk Service: " + token);
-                mTomahawkServerConnection = TomahawkServerConnection.get(userid, token);
+                Intent intent = new Intent(this, TomahawkService.class);
+                intent.putExtra(TomahawkService.ACCOUNT_NAME, username);
+                intent.putExtra(TomahawkService.AUTH_TOKEN_TYPE, token);
+                startService(intent);
+                bindService(intent, mTomahawkServiceConnection, Context.BIND_AUTO_CREATE);
             }
 
         } catch (OperationCanceledException e) {
